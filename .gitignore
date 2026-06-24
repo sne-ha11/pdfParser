@@ -1,0 +1,13 @@
+# Security
+.env
+
+# Virtual Environment
+venv/
+env/
+
+# Django Database
+db.sqlite3
+
+# Python Cache (Stops annoying temporary files from uploading)
+__pycache__/
+*.pyc
