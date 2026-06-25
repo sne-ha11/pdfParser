@@ -2,118 +2,120 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My AI Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pdfParser - AI Assistant</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            display: flex; 
-            height: 100vh; 
-            background-color: #f4f7f6; 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            height: 100vh;
         }
-        .sidebar { 
-            width: 260px; 
-            background-color: #2c3e50; 
-            color: white; 
-            padding: 20px; 
+        .sidebar {
+            width: 250px;
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-right: 1px solid #455a64;
         }
-        .chat-container { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
+        .main-chat {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #121212;
         }
-        .chat-window { 
-            flex: 1; 
-            padding: 30px; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
+        .chat-history {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
         }
-        .message { 
-            max-width: 60%; 
-            padding: 15px; 
-            border-radius: 10px; 
-            line-height: 1.5;
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 80%;
         }
-        .user-message { 
-            align-self: flex-end; 
-            background-color: #3498db; 
-            color: white; 
-            border-bottom-right-radius: 0;
+        .user-msg {
+            background-color: #005c4b;
+            align-self: flex-end;
+            margin-left: auto;
         }
-        .ai-message { 
-            align-self: flex-start; 
-            background-color: white; 
-            color: #333; 
-            border-bottom-left-radius: 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        .ai-msg {
+            background-color: #202c33;
+            align-self: flex-start;
         }
-        .input-area { 
-            padding: 20px; 
-            background-color: white; 
-            border-top: 1px solid #ddd; 
-            display: flex; 
-            gap: 10px; 
+        .chat-input {
+            padding: 20px;
+            background-color: #2d2d2d;
+            display: flex;
+            gap: 10px;
         }
-        input[type="text"] { 
-            flex: 1; 
-            padding: 15px; 
-            border: 1px solid #ccc; 
-            border-radius: 5px; 
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #404040;
+            color: white;
             font-size: 16px;
-            outline: none;
         }
-        button { 
-            padding: 15px 30px; 
-            background-color: #2ecc71; 
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
+        button {
+            padding: 15px 25px;
+            background-color: #00a884;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 16px;
-            cursor: pointer; 
             font-weight: bold;
         }
         button:hover {
-            background-color: #27ae60;
+            background-color: #008f6f;
         }
     </style>
 </head>
 <body>
-    
+
     <div class="sidebar">
         <h2>My Chats</h2>
-        <p>📝 Session History</p>
-    </div>
-
-    <div class="chat-container">
         
-        <div class="chat-window">
-            
-            {% for message in chat_messages %}
-                
-                {% if message.sender == 'user' %}
-                    <div class="message user-message">
-                        {{ message.text }}
-                    </div>
-                {% else %}
-                    <div class="message ai-message">
-                        {{ message.text }}
-                    </div>
-                {% endif %}
-
-            {% empty %}
-                <div class="message ai-message">
-                    Hello! I am your AI assistant. We have no history yet!
-                </div>
-            {% endfor %}
-
-       <form method="POST" class="input-area">
+        <form method="POST" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #455a64;">
             {% csrf_token %}
-            <input type="text" name="user_input" placeholder="Type your message here..." required>
-            <button type="submit">Send</button>
+            <p style="margin-bottom: 5px; font-weight: bold;">🤖 Active Brain:</p>
+            <select name="ai_model" onchange="this.form.submit()" style="width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 10px; background-color: white; color: black; border: none;">
+                <option value="gemini" {% if request.session.selected_model == 'gemini' %}selected{% endif %}>Google Gemini 2.5</option>
+                <option value="openai" {% if request.session.selected_model == 'openai' %}selected{% endif %}>OpenAI GPT-4o</option>
+                <option value="groq" {% if request.session.selected_model == 'groq' %}selected{% endif %}>Groq (Llama 3)</option>
+                <option value="cohere" {% if request.session.selected_model == 'cohere' %}selected{% endif %}>Cohere Command R+</option>
+                <option value="mistral" {% if request.session.selected_model == 'mistral' %}selected{% endif %}>Mistral Large</option>
+                <option value="huggingface" {% if request.session.selected_model == 'huggingface' %}selected{% endif %}>HuggingFace (Zephyr)</option>
+            </select>
         </form>
 
+        <form method="POST" enctype="multipart/form-data" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #455a64;">
+            {% csrf_token %}
+            <p style="margin-bottom: 5px; font-weight: bold;">📄 Upload CSIT Notes:</p>
+            <input type="file" name="pdf_file" accept=".pdf" style="width: 100%; margin-bottom: 10px; color: white;">
+            <button type="submit" style="width: 100%; padding: 8px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Upload & Read</button>
+        </form>
+    </div>
+
+    <div class="main-chat">
+        <div class="chat-history">
+            {% for msg in chat_messages %}
+                <div class="message {% if msg.sender == 'user' %}user-msg{% else %}ai-msg{% endif %}">
+                    <strong>{% if msg.sender == 'user' %}You{% else %}AI{% endif %}:</strong>
+                    <p>{{ msg.text }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <form class="chat-input" method="POST">
+            {% csrf_token %}
+            <input type="text" name="user_input" placeholder="Type a message or ask about your PDF..." autocomplete="off" required>
+            <button type="submit">Send</button>
+        </form>
     </div>
 
 </body>
